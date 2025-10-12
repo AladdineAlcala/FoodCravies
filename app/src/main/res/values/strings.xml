@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">FoodCravies</string>
+    <string name="Skip">Skip</string>
+    <string name="Welcome">Welcome</string>
+    <string name="app_name_description">Your favorite food delivered fast at your door</string>
+    <string name="email_or_phone">Start with email or phone</string>
+    <string name="sign_in_with">sign in with</string>
+    <string name="sign_in_with_facebook">FACEBOOK</string>
+    <string name="sign_in_with_google">GOOGLE</string>
 </resources>

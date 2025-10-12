@@ -17,6 +17,10 @@ val displayFontFamily = FontFamily(
     Font(R.font.poppins_black, FontWeight.Black)
 )
 
+val lobsterFamily = FontFamily(
+    Font(R.font.lobster_regular, FontWeight.Normal)
+)
+
 val baseline = Typography()
 // Set of Material typography styles to start with
 val Typography = Typography(
