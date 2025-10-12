@@ -1,27 +1,21 @@
 package com.jtautomation02.foodcravies.ui.features.auth
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +39,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jtautomation02.foodcravies.R
-import com.jtautomation02.foodcravies.ui.theme.Orange
+import com.jtautomation02.foodcravies.ui.SocialGroupComponent
+import com.jtautomation02.foodcravies.ui.theme.Primary
 import com.jtautomation02.foodcravies.ui.theme.lobsterFamily
 
 @Composable
@@ -97,7 +92,7 @@ fun AuthScreen(){
         ) {
             Text(
                 text = stringResource(R.string.Skip),
-                color = Orange
+                color = Primary
             )
         }
 
@@ -117,7 +112,7 @@ fun AuthScreen(){
                 )
                 Text(
                     text = stringResource(R.string.app_name),
-                    color = Orange,
+                    color = Primary,
                     fontSize = 40.sp,
                     fontFamily = lobsterFamily,
                     fontWeight = FontWeight.Normal
@@ -138,66 +133,12 @@ fun AuthScreen(){
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    HorizontalDivider(
-                        modifier = Modifier.weight(1f),
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                    Text(
-                        text =  stringResource(R.string.sign_in_with),
-                        color = Color.White.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.weight(1f),
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = { /*TODO*/ },
-                        shape = RoundedCornerShape(24.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        modifier = Modifier
-                            .height(54.dp)
-                            .width(160.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_fb),
-                            contentDescription = "Facebook",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Unspecified
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text =stringResource(R.string.sign_in_with_facebook), color = Color.Black)
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Button(
-                        onClick = { /*TODO*/ },
-                        shape = RoundedCornerShape(24.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        modifier = Modifier
-                            .height(54.dp)
-                            .width(160.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_google),
-                            contentDescription = stringResource(R.string.sign_in_with_google),
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Unspecified
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text =stringResource(R.string.sign_in_with_google), color = Color.Black)
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+                SocialGroupComponent(onGoogleClick ={
+                    Log.d("TAG","Google Clicked")
+                }, onFaceBookClick ={
+                   Log.d("TAG","FaceBook Clicked")
+                })
+
                 OutlinedButton(
                     onClick = { /*TODO*/ },
                     modifier = Modifier

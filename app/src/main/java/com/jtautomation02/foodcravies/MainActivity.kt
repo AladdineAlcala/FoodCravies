@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.jtautomation02.foodcravies.ui.features.auth.AuthScreen
+import com.jtautomation02.foodcravies.ui.features.auth.signup.SignUpScreen
 import com.jtautomation02.foodcravies.ui.theme.FoodCraviesTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
             FoodCraviesTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding))
-                    AuthScreen()
+                    SignUpScreen()
                 }
             }
         }

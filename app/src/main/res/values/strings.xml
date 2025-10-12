@@ -7,4 +7,8 @@
     <string name="sign_in_with">sign in with</string>
     <string name="sign_in_with_facebook">FACEBOOK</string>
     <string name="sign_in_with_google">GOOGLE</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="fullname">Full name</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
 </resources>
