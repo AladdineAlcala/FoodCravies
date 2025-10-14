@@ -7,19 +7,20 @@ import android.view.animation.OvershootInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.jtautomation02.foodcravies.ui.features.auth.signup.SignUpScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.jtautomation02.foodcravies.ui.features.auth.AuthScreen
+import com.jtautomation02.foodcravies.ui.features.home.HomeScreen
 import com.jtautomation02.foodcravies.ui.theme.FoodCraviesTheme
+import com.jtautomation02.foodcravies.viewmodel.MainViewModel
+import com.jtautomation02.foodcravies.viewmodel.StartDestination
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,10 +56,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FoodCraviesTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding))
-                    SignUpScreen()
-                }
+                AppNavigation()
             }
         }
         CoroutineScope(Dispatchers.IO).launch {
@@ -69,18 +67,31 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-        style = MaterialTheme.typography.titleLarge
-    )
-}
+fun AppNavigation(
+    mainViewModel: MainViewModel =viewModel(),
+){
+    val navController = rememberNavController()
+    val startDestination by mainViewModel.startDestination.collectAsState()
+    if(startDestination== StartDestination.AUTH){
+        AuthScreen()
+        println("Auth Screen loaded")
+        return
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FoodCraviesTheme {
-        Greeting("Android")
+    NavHost(navController = navController, startDestination = startDestination.name.lowercase()) {
+        composable(StartDestination.AUTH.name.lowercase()) {
+            AuthScreen(
+                onNavigateToSignUp={
+                    navController.navigate(StartDestination.SIGNUP.name.lowercase())
+                }
+            )
+
+        }
+        composable(StartDestination.HOME.name.lowercase()) {
+            HomeScreen()
+        }
+        composable(StartDestination.LOGIN.name.lowercase()) {
+
+        }
     }
 }

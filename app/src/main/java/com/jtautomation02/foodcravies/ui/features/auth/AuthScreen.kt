@@ -44,7 +44,9 @@ import com.jtautomation02.foodcravies.ui.theme.Primary
 import com.jtautomation02.foodcravies.ui.theme.lobsterFamily
 
 @Composable
-fun AuthScreen(){
+fun AuthScreen(
+    onNavigateToSignUp: () -> Unit = {}
+){
     val screenSize= remember{
         mutableStateOf(IntSize.Zero)
     }
@@ -140,7 +142,7 @@ fun AuthScreen(){
                 })
 
                 OutlinedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onNavigateToSignUp },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
