@@ -19,41 +19,38 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.jtautomation02.foodcravies.R
+import com.jtautomation02.foodcravies.SIGNUP
 import com.jtautomation02.foodcravies.ui.SocialGroupComponent
 import com.jtautomation02.foodcravies.ui.theme.Primary
 import com.jtautomation02.foodcravies.ui.theme.lobsterFamily
 
 @Composable
-fun AuthScreen(){
-    val screenSize= remember{
-        mutableStateOf(IntSize.Zero)
-    }
-    val brush= Brush.verticalGradient(
-        colors = listOf(
-            Color.Transparent,
-            Color.Black
-        ),
-        startY = screenSize.value.height.toFloat() / 3
+fun AuthScreen(
+    navController: NavController,
+){
+//    val screenSize= remember{
+//        mutableStateOf(IntSize.Zero)
+//    }
+    val brush = Brush.verticalGradient(
+        0.0f to Color.Transparent,  // From 0% to 33% will be transparent
+        0.80f to Color.Black,       // Start fading to black at 33%
+        1.0f to Color.Black         // Fully black by the end
     )
     Box(modifier = Modifier
         .fillMaxSize()
@@ -62,9 +59,8 @@ fun AuthScreen(){
             id = R.drawable.background),
             contentDescription = null,
             modifier = Modifier
-                .onGloballyPositioned {
-                    screenSize.value = it.size
-                }
+                // The image should fill the entire size of the parent Box.
+                .fillMaxSize()
                 .alpha(0.6f)
         )
         //Gradient
@@ -140,7 +136,11 @@ fun AuthScreen(){
                 })
 
                 OutlinedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        println("print authscrim")
+                        navController.navigate(SIGNUP)
+                              },
+
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
@@ -163,10 +163,4 @@ fun AuthScreen(){
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AuthScreenPreview(){
-    AuthScreen()
 }
