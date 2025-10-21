@@ -12,20 +12,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jtautomation02.foodcravies.ui.features.auth.AuthScreen
+import com.jtautomation02.foodcravies.ui.features.auth.signup.SignUpScreen
 import com.jtautomation02.foodcravies.ui.features.home.HomeScreen
 import com.jtautomation02.foodcravies.ui.theme.FoodCraviesTheme
 import com.jtautomation02.foodcravies.viewmodel.MainViewModel
-import com.jtautomation02.foodcravies.viewmodel.StartDestination
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -52,10 +53,10 @@ class MainActivity : ComponentActivity() {
             }
         }
         super.onCreate(savedInstanceState)
-        installSplashScreen()
         enableEdgeToEdge()
         setContent {
             FoodCraviesTheme {
+                // The NavHost is now the top-level composable, allowing it to fill the entire screen.
                 AppNavigation()
             }
         }
@@ -68,30 +69,29 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavigation(
-    mainViewModel: MainViewModel =viewModel(),
+    mainViewModel: MainViewModel = hiltViewModel(),
 ){
-    val navController = rememberNavController()
+    val navHostController = rememberNavController()
     val startDestination by mainViewModel.startDestination.collectAsState()
-    if(startDestination== StartDestination.AUTH){
-        AuthScreen()
-        println("Auth Screen loaded")
-        return
-    }
 
-    NavHost(navController = navController, startDestination = startDestination.name.lowercase()) {
-        composable(StartDestination.AUTH.name.lowercase()) {
-            AuthScreen(
-                onNavigateToSignUp={
-                    navController.navigate(StartDestination.SIGNUP.name.lowercase())
-                }
-            )
-
+    NavHost(navController = navHostController, startDestination = AUTH) {
+        composable<AUTH> {
+            AuthScreen(navController = navHostController)
         }
-        composable(StartDestination.HOME.name.lowercase()) {
+        composable<HOME> {
             HomeScreen()
         }
-        composable(StartDestination.LOGIN.name.lowercase()) {
-
+        composable<SIGNUP> {
+            SignUpScreen(navController = navHostController)
         }
     }
 }
+
+@Serializable
+object AUTH
+
+@Serializable
+object HOME
+
+@Serializable
+object SIGNUP

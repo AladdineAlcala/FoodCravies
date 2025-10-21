@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.jtautomation02.foodcravies.R
 import com.jtautomation02.foodcravies.common.Result
 import com.jtautomation02.foodcravies.ui.FoodCraviesTextFieldComponent
@@ -57,6 +58,7 @@ import com.jtautomation02.foodcravies.ui.theme.Primary
 
 @Composable
 fun SignUpScreen(
+    navController: NavController,
     viewModel: SignUpViewModel = hiltViewModel()
 ){
     val fullName by viewModel.fullName.collectAsStateWithLifecycle()
@@ -251,12 +253,4 @@ fun SignUpScreen(
             }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun SignUpScreenPreview(){
-    SignUpScreen()
-
 }

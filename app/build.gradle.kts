@@ -2,11 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
     id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.serialization")
 }
-
+hilt {
+    enableAggregatingTask = false
+}
 android {
     namespace = "com.jtautomation02.foodcravies"
     compileSdk {
@@ -57,7 +59,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.navigation.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,26 +69,23 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-
-    //retrofit
+    // Jetpack Compose integration
+    implementation(libs.androidx.navigation.compose)
+    // JSON serialization library, works with the Kotlin serialization plugin
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.hilt)
+    kapt(libs.hiltCompiler)
+    implementation(libs.androidxHiltNavigationCompose)
     implementation(libs.retrofit)
+    implementation(libs.gson)
+    implementation(libs.coroutines)
+    implementation(libs.coil)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
-
-    //navigation
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.androidx.navigation.compose)
-
-    //serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    //compose
-    implementation(libs.androidx.runtime.compose)
-
-    implementation(libs.converter.moshi)
-    implementation(libs.moshi.kotlin)
+    // Core Moshi library
     implementation(libs.moshi)
-
+    implementation(libs.okhttp)
+    implementation(libs.okhttp3.logging.interceptor)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.converter.moshi)
 }
