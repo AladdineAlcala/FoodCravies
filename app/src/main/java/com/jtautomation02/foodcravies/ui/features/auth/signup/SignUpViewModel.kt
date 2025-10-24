@@ -31,7 +31,6 @@ class SignUpViewModel @Inject constructor(
 
      val email = MutableStateFlow("")
      val password = MutableStateFlow("")
-//     val confirmPassword = MutableStateFlow("")
 
      val fullName = MutableStateFlow("")
 
@@ -42,9 +41,6 @@ class SignUpViewModel @Inject constructor(
         password.value = value
     }
 
-//    fun setConfirmPassword(value: String) {
-//        confirmPassword.value = value
-//    }
 
     fun setFullName(value: String) {
         fullName.value = value
