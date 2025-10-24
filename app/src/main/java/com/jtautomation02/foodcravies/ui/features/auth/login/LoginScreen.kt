@@ -1,4 +1,4 @@
-package com.jtautomation02.foodcravies.ui.features.auth.signup
+package com.jtautomation02.foodcravies.ui.features.auth.login
 
 import android.util.Patterns
 import androidx.compose.animation.AnimatedContent
@@ -46,41 +46,38 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.jtautomation02.foodcravies.LOGIN
+import com.jtautomation02.foodcravies.HOME
+import com.jtautomation02.foodcravies.NavigationEvents
 import com.jtautomation02.foodcravies.R
+import com.jtautomation02.foodcravies.SIGNUP
 import com.jtautomation02.foodcravies.common.Result
 import com.jtautomation02.foodcravies.ui.FoodCraviesTextFieldComponent
 import com.jtautomation02.foodcravies.ui.SocialGroupComponent
 import com.jtautomation02.foodcravies.ui.theme.Primary
+import kotlinx.coroutines.flow.collectLatest
+
 
 @Composable
-fun SignUpScreen(
+fun LogInScreen(
     navController: NavController,
-    viewModel: SignUpViewModel = hiltViewModel<SignUpViewModel>()
+    viewModel: LogInViewModel = hiltViewModel<LogInViewModel>()
 ){
-    val fullName by viewModel.fullName.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    var fullNameError by remember { mutableStateOf<String?>(null) }
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
-    val registerState by viewModel.registerState.collectAsStateWithLifecycle()
+    val loginState by viewModel.loginState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val emailErrorValue:String ="Email cannot be empty."
-    val invalidEmailErrorValue ="Please enter a valid email address."
-    val  fullNameErrorValue = "Full name cannot be empty."
-    val passwordErrorValue = "Password cannot be empty."
-
-    LaunchedEffect(registerState) {
-        when (val result = registerState) {
+    LaunchedEffect(loginState) {
+        when (val result = loginState) {
             is Result.Error -> {
                 isLoading = false
                 snackBarHostState.showSnackbar(result.message)
@@ -88,8 +85,36 @@ fun SignUpScreen(
             is Result.Success -> {
                 isLoading = false
             }
-            Result.Loading -> isLoading = true
+            is Result.Loading -> {
+                isLoading = true
+            }
             Result.Idle -> {}
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collectLatest { event ->
+            // This block will run every time a new event is emitted
+            when (event) {
+                is NavigationEvents.NavigateToHome -> {
+                    // Navigate to the Home screen and clear the entire back stack
+                    // so the user cannot go back to the signup/login flow.
+                    navController.navigate(HOME) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
+                }
+                // You can add other navigation events here in the future
+                // is NavigationEvents.NavigateBack -> { ... }
+                NavigationEvents.NavigateToChangePassword -> TODO()
+                NavigationEvents.NavigateToForgotPassword -> TODO()
+                NavigationEvents.NavigateToHome -> TODO()
+                NavigationEvents.NavigateToLogin -> TODO()
+                NavigationEvents.NavigateToProfile -> TODO()
+                NavigationEvents.NavigateToResetPassword -> TODO()
+                NavigationEvents.NavigateToSignUp -> TODO()
+            }
         }
     }
 
@@ -109,31 +134,12 @@ fun SignUpScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(modifier = Modifier.weight(1f))
-                Text(text = stringResource(R.string.sign_up),
+                Text(text = stringResource(R.string.sign_in),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                FoodCraviesTextFieldComponent(
-                    value = fullName,
-                    onValueChange = {
-                        viewModel.setFullName(it)
-                        fullNameError = null
-                    },
-                    label ={
-                        Text(text = stringResource(R.string.fullname),
-                            color = Color.Black.copy(alpha = 0.8f)
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = fullNameError != null,
-                    supportingText = {
-                        if (fullNameError != null) {
-                            Text(text = fullNameError!!, color = MaterialTheme.colorScheme.error)
-                        }
-                    }
-                )
 
                 FoodCraviesTextFieldComponent(
                     value = email,
@@ -181,31 +187,25 @@ fun SignUpScreen(
                     }
                 )
 
-                Button(
-                    onClick = {
-                        var hasError = false
+                Button(onClick = {
+                    var hasError = false
 
-                        if (fullName.isBlank()) {
-                            fullNameError = fullNameErrorValue
-                            hasError = true
-                        }
+                    if (email.isBlank()) {
+                        emailError = "Email cannot be empty."
+                        hasError = true
+                    } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        emailError = "Please enter a valid email address."
+                        hasError = true
+                    }
 
-                        if (email.isBlank()) {
-                            emailError = emailErrorValue
-                            hasError = true
-                        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                            emailError =invalidEmailErrorValue
-                            hasError = true
-                        }
+                    if (password.isBlank()) {
+                        passwordError = "Password cannot be empty."
+                        hasError = true
+                    }
 
-                        if (password.isBlank()) {
-                            passwordError =passwordErrorValue
-                            hasError = true
-                        }
-
-                        if (!hasError) {
-                            viewModel.onRegister(fullName, email, password)
-                        }
+                    if (!hasError) {
+                        viewModel.onLogin( email, password)
+                    }
                 },
                     modifier =Modifier.height(48.dp),
                     enabled = !isLoading,
@@ -226,7 +226,7 @@ fun SignUpScreen(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text(text = stringResource(R.string.sign_up)
+                            Text(text = stringResource(R.string.sign_in)
                                 , color = Color.White,
                                 modifier = Modifier.padding(horizontal = 32.dp)
                             )
@@ -236,24 +236,24 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = buildAnnotatedString {
-                        append("Already have an account? ")
+                        append("Don't have an account? ")
                         withStyle(style = SpanStyle(color = Color.Black, fontWeight = FontWeight.Bold)) {
-                            append("Sign In")
+                            append("Sign Up")
                         }
                     },
                     textAlign = TextAlign.Center,
                     color = Color.Black.copy(alpha = 0.8f),
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(LOGIN)
+                            navController.navigate(SIGNUP)
                         }
                         .fillMaxWidth(),
 
-                )
+                    )
                 SocialGroupComponent(
                     color = Color.Black,
                     onFaceBookClick = {/* Todo */}
-                    ) {
+                ) {
 
                 }
             }

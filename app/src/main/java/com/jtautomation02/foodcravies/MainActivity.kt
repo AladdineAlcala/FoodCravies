@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jtautomation02.foodcravies.ui.features.auth.AuthScreen
+import com.jtautomation02.foodcravies.ui.features.auth.login.LogInScreen
 import com.jtautomation02.foodcravies.ui.features.auth.signup.SignUpScreen
 import com.jtautomation02.foodcravies.ui.features.home.HomeScreen
 import com.jtautomation02.foodcravies.ui.theme.FoodCraviesTheme
@@ -69,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavigation(
-    mainViewModel: MainViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel = hiltViewModel<MainViewModel>(),
 ){
     val navHostController = rememberNavController()
     val startDestination by mainViewModel.startDestination.collectAsState()
@@ -84,6 +85,9 @@ fun AppNavigation(
         composable<SIGNUP> {
             SignUpScreen(navController = navHostController)
         }
+        composable<LOGIN> {
+            LogInScreen(navController = navHostController)
+        }
     }
 }
 
@@ -95,3 +99,6 @@ object HOME
 
 @Serializable
 object SIGNUP
+
+@Serializable
+object LOGIN

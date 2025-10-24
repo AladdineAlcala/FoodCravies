@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -33,20 +34,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.jtautomation02.foodcravies.AUTH
+import com.jtautomation02.foodcravies.HOME
+import com.jtautomation02.foodcravies.LOGIN
 import com.jtautomation02.foodcravies.R
 import com.jtautomation02.foodcravies.SIGNUP
 import com.jtautomation02.foodcravies.ui.SocialGroupComponent
 import com.jtautomation02.foodcravies.ui.theme.Primary
 import com.jtautomation02.foodcravies.ui.theme.lobsterFamily
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun AuthScreen(
     navController: NavController,
+    viewModel: AuthScreenViewModel = viewModel()
 ){
 //    val screenSize= remember{
 //        mutableStateOf(IntSize.Zero)
 //    }
+
+    LaunchedEffect(key1 = Unit){
+        viewModel.authNavigationEvent.collectLatest { event->
+            when(event) {
+               is AuthScreenViewModel.AuthNavigationEvent.NavigateToHome -> {
+                   navController.navigate(HOME){
+                       popUpTo(AUTH){
+                           inclusive=true
+                       }
+                   }
+               }
+               is AuthScreenViewModel.AuthNavigationEvent.NavigateToSignUp -> {
+                   navController.navigate(SIGNUP)
+               }
+               is AuthScreenViewModel.AuthNavigationEvent.ShowErrorDialog -> {
+
+               }
+            }
+        }
+    }
     val brush = Brush.verticalGradient(
         0.0f to Color.Transparent,  // From 0% to 33% will be transparent
         0.80f to Color.Black,       // Start fading to black at 33%
@@ -157,7 +184,7 @@ fun AuthScreen(
                         }
                     },
                     color = Color.White.copy(alpha = 0.8f),
-                    modifier = Modifier.clickable { /* TODO */ }
+                    modifier = Modifier.clickable { navController.navigate(LOGIN) }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
