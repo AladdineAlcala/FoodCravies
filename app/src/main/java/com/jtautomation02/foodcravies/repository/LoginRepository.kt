@@ -1,6 +1,7 @@
 package com.jtautomation02.foodcravies.repository
 
 import com.jtautomation02.foodcravies.common.Result
+import com.jtautomation02.foodcravies.model.GoogleSignInAccount
 import com.jtautomation02.foodcravies.model.LoginUserRequest
 import com.jtautomation02.foodcravies.model.LoginUserResponse
 import com.jtautomation02.foodcravies.remote.FoodCraveApiService
@@ -48,6 +49,32 @@ class LoginRepository @Inject constructor(
             }
         }
     }
+
+    suspend fun loginWithGoogle(googleSignInAccount: GoogleSignInAccount): Result<LoginUserResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result=apiService.loginwithgoogle(googleSignInAccount)
+                if(result.isSuccessful && result.body() != null){
+                    val loginUserResponse: LoginUserResponse = result.body()!!
+                    if(loginUserResponse.success && loginUserResponse.accessToken.isNotEmpty()){
+                        Result.Success(loginUserResponse)
+                    }
+                    else{
+                        Result.Error<LoginUserResponse>(loginUserResponse?.errorMessage ?: "An unexpected error occurred")
+                    }
+                }
+               else{
+                    Result.Error("Network error: Please check your connection.")
+               }
+            } catch (e: IOException) {
+                Result.Error("Network error: Please check your connection.")
+            } catch (e: Exception) {
+                Result.Error("An unexpected error occurred: ${e.message}")
+            }
+        }
+
+    }
+
 
     /**
      * Helper function to parse the error JSON from the response body.

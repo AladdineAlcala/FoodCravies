@@ -29,7 +29,7 @@ class AuthScreenViewModel @Inject constructor(
 
     sealed class AuthNavigationEvent {
         object NavigateToSignUp : AuthNavigationEvent()
-        object NavigateToHome : AuthNavigationEvent()
+        object NavigateToMain : AuthNavigationEvent()
         object ShowErrorDialog : AuthNavigationEvent()
     }
 

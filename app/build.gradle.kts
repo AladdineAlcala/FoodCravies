@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,18 +12,34 @@ plugins {
 hilt {
     enableAggregatingTask = false
 }
+
+// Read the local.properties file
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace = "com.jtautomation02.foodcravies"
     compileSdk {
         version = release(36)
     }
-
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.jtautomation02.foodcravies"
         minSdk = 25
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        // 3. Expose the key to your app's code via BuildConfig
+        // It reads the value from local.properties
+        val googleClientId = localProperties.getProperty("GOOGLE_CLIENT_ID") ?: ""
+
+        // This creates a variable: BuildConfig.GOOGLE_CLIENT_ID
+            buildConfigField("String", "GOOGLE_CLIENT_ID", "\"$googleClientId\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,6 +65,9 @@ android {
     buildFeatures {
         compose = true
     }
+    kotlinOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
 }
 kapt {
     correctErrorTypes = true
@@ -60,6 +82,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.tv.material)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.androidx.compose.foundation.layout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -88,4 +115,12 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
+
+    implementation("androidx.credentials:credentials:1.2.2")
+// Or the latest version
+    implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
+// Or the latest version
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
