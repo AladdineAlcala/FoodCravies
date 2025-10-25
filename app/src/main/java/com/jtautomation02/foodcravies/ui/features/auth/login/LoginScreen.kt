@@ -30,11 +30,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -46,25 +48,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import android.credentials.GetCredentialException
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.credentials.GetCredentialResponse
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.jtautomation02.foodcravies.HOME
+import com.jtautomation02.foodcravies.BuildConfig
+import com.jtautomation02.foodcravies.MAIN
 import com.jtautomation02.foodcravies.NavigationEvents
 import com.jtautomation02.foodcravies.R
 import com.jtautomation02.foodcravies.SIGNUP
 import com.jtautomation02.foodcravies.common.Result
+import com.jtautomation02.foodcravies.model.LoginUserResponse
 import com.jtautomation02.foodcravies.ui.FoodCraviesTextFieldComponent
 import com.jtautomation02.foodcravies.ui.SocialGroupComponent
 import com.jtautomation02.foodcravies.ui.theme.Primary
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun LogInScreen(
+    onLoginSuccess: (logInUserResponse: LoginUserResponse) -> Unit,
     navController: NavController,
     viewModel: LogInViewModel = hiltViewModel<LogInViewModel>()
 ){
+    val context = LocalContext.current
+
+    val serverClientId = BuildConfig.GOOGLE_CLIENT_ID
+
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -76,6 +94,13 @@ fun LogInScreen(
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
+    val scope = rememberCoroutineScope()
+
+    val credentialManager = remember(context) {
+        CredentialManager.create(context)
+    }
+
+
     LaunchedEffect(loginState) {
         when (val result = loginState) {
             is Result.Error -> {
@@ -84,6 +109,7 @@ fun LogInScreen(
             }
             is Result.Success -> {
                 isLoading = false
+                onLoginSuccess(result.data)
             }
             is Result.Loading -> {
                 isLoading = true
@@ -92,28 +118,21 @@ fun LogInScreen(
         }
     }
 
+
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collectLatest { event ->
             // This block will run every time a new event is emitted
             when (event) {
-                is NavigationEvents.NavigateToHome -> {
+                is NavigationEvents.NavigateMain -> {
                     // Navigate to the Home screen and clear the entire back stack
                     // so the user cannot go back to the signup/login flow.
-                    navController.navigate(HOME) {
+                    navController.navigate(MAIN) {
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
                         }
                     }
                 }
-                // You can add other navigation events here in the future
-                // is NavigationEvents.NavigateBack -> { ... }
-                NavigationEvents.NavigateToChangePassword -> TODO()
-                NavigationEvents.NavigateToForgotPassword -> TODO()
-                NavigationEvents.NavigateToHome -> TODO()
-                NavigationEvents.NavigateToLogin -> TODO()
-                NavigationEvents.NavigateToProfile -> TODO()
-                NavigationEvents.NavigateToResetPassword -> TODO()
-                NavigationEvents.NavigateToSignUp -> TODO()
+               else -> {}
             }
         }
     }
@@ -134,7 +153,8 @@ fun LogInScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(modifier = Modifier.weight(1f))
-                Text(text = stringResource(R.string.sign_in),
+                Text(
+                    text = stringResource(R.string.sign_in),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(),
@@ -177,7 +197,9 @@ fun LogInScreen(
                         val image = if (isPasswordVisible) R.drawable.ic_eye_slash else R.drawable.ic_eye
                         Image(painter = painterResource(id = image),
                             contentDescription = "Toggle password visibility",
-                            modifier = Modifier.clickable { isPasswordVisible = !isPasswordVisible }.size(24.dp))
+                            modifier = Modifier
+                                .clickable { isPasswordVisible = !isPasswordVisible }
+                                .size(24.dp))
                     },
                     isError = passwordError != null,
                     supportingText = {
@@ -252,10 +274,43 @@ fun LogInScreen(
                     )
                 SocialGroupComponent(
                     color = Color.Black,
-                    onFaceBookClick = {/* Todo */}
-                ) {
+                    onFaceBookClick = { },
+                    onGoogleClick = {
+                        // 5. Launch the coroutine on click
+                        scope.launch {
+                            var finalResult: GetCredentialResponse? = null
+                            try {
+                                // --- STEP 1: Try signing in returning users ---
+                                Log.d("GoogleSignIn", "Attempting sign-in for returning users...")
+                                val request = viewModel.createSignInRequestForReturningUsers(serverClientId)
+                                finalResult = credentialManager.getCredential(context, request)
 
-                }
+                            } catch (e: GetCredentialException) {
+                                // --- STEP 2: If Step 1 fails with NoCredentialException, it's a new user ---
+                                // We specifically check for NoCredentialException. Other exceptions are real errors.
+                                if (e is androidx.credentials.exceptions.NoCredentialException) {
+                                    Log.d("GoogleSignIn", "No returning user found. Launching sign-in for new users...")
+                                    try {
+                                        val requestForNewUser = viewModel.createSignInRequestForNewUsers(serverClientId)
+                                        finalResult = credentialManager.getCredential(context, requestForNewUser)
+                                    } catch (e2: GetCredentialException) {
+                                        // If the second attempt also fails (e.g., user cancels), handle it.
+                                        viewModel.handleSignInFailure(e2)
+                                    }
+                                } else {
+                                    // Handle other exceptions from the first attempt (network errors, etc.)
+                                    viewModel.handleSignInFailure(e)
+                                }
+                            }
+
+                            // --- Process the final result ---
+                            // This will only run if one of the attempts was successful.
+                            finalResult?.let {
+                                viewModel.handleSignInSuccess(it)
+                            }
+                        }
+                    }
+                )
             }
         }
     }

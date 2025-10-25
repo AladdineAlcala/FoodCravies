@@ -58,7 +58,7 @@ class SignUpViewModel @Inject constructor(
                 ))) {
                 is Result.Success -> {
                     _registerState.value = result
-                    _navigationEvents.tryEmit(NavigationEvents.NavigateToHome)
+                    _navigationEvents.tryEmit(NavigationEvents.NavigateMain)
                 }
                 is Result.Error -> {
                     _registerState.value = result

@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.jtautomation02.foodcravies.AUTH
-import com.jtautomation02.foodcravies.HOME
 import com.jtautomation02.foodcravies.LOGIN
+import com.jtautomation02.foodcravies.MAIN
 import com.jtautomation02.foodcravies.R
 import com.jtautomation02.foodcravies.SIGNUP
 import com.jtautomation02.foodcravies.ui.SocialGroupComponent
@@ -58,8 +58,8 @@ fun AuthScreen(
     LaunchedEffect(key1 = Unit){
         viewModel.authNavigationEvent.collectLatest { event->
             when(event) {
-               is AuthScreenViewModel.AuthNavigationEvent.NavigateToHome -> {
-                   navController.navigate(HOME){
+               is AuthScreenViewModel.AuthNavigationEvent.NavigateToMain-> {
+                   navController.navigate(MAIN){
                        popUpTo(AUTH){
                            inclusive=true
                        }
